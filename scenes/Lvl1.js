@@ -11,7 +11,7 @@ class Lvl1 extends Phaser.Scene {
         this.load.spritesheet('Shina', 'assets/sprite/PNG/sprite.png',{frameWidth:32, frameHeight: 32});
         this.load.tilemapTiledJSON('Foret', 'assets/map/Foret.JSON');
         this.load.image('Map', 'assets/map/asset_test.png'); 
-        this.load.spritesheet('mob', 'assets/sprite/PNG/sprite_ennemis_1.png',{frameWidth:32, frameHeight: 32});   
+        this.load.spritesheet('mobs', 'assets/sprite/PNG/sprite_ennemis_1.png',{frameWidth:32, frameHeight: 32});   
         
     }
 
@@ -29,7 +29,7 @@ class Lvl1 extends Phaser.Scene {
 
     
     // ennemis //
-    ennemis = this.physics.add.sprite(400, 800, 'mob');
+    ennemis = this.physics.add.sprite(400, 800, 'mobs');
     
     // player //
     player = this.physics.add.sprite(x, y, 'Shina');
