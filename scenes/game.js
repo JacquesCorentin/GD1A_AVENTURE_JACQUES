@@ -67,6 +67,9 @@ var timerInvincible = 0;
 
 //ennemis//
 var ennemis;
+var animMobs = true;
 var vieEnnemis = 3;
+
+var gameOver = false;
 
 

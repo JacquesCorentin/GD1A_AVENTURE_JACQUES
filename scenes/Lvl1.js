@@ -11,7 +11,7 @@ class Lvl1 extends Phaser.Scene {
         this.load.spritesheet('Shina', 'assets/sprite/PNG/sprite.png',{frameWidth:32, frameHeight: 32});
         this.load.tilemapTiledJSON('Foret', 'assets/map/Foret.JSON');
         this.load.image('Map', 'assets/map/asset_test.png'); 
-        this.load.spritesheet('mobs', 'assets/sprite/PNG/sprite_ennemis_1.png',{frameWidth:32, frameHeight: 32});   
+        this.load.spritesheet('mobs', 'assets/sprite/PNG/sprite_ennemi_1.png',{frameWidth:32, frameHeight: 32});   
         
     }
 
@@ -29,7 +29,8 @@ class Lvl1 extends Phaser.Scene {
 
     
     // ennemis //
-    ennemis = this.physics.add.sprite(400, 800, 'mobs');
+    ennemis = this.physics.add.sprite(640, 340, 'mobs');
+    ennemis.body.setSize(20,18);
     
     // player //
     player = this.physics.add.sprite(x, y, 'Shina');
@@ -77,17 +78,31 @@ class Lvl1 extends Phaser.Scene {
     this.physics.add.collider(player, this.wallsLayer);
     this.physics.add.collider(player, this.sortieLayer, Sortie12);
     this.physics.add.collider(player, this.sortie2Layer, Sortie13);
+    this.physics.add.collider(player, ennemis, hitEnnemis);
 
-    // ennemis //
-    ennemis = this.physics.add.sprite(400, 800, 'Lezard');
+    this.physics.add.collider(ennemis, this.wallsLayer);
+    
+
+// Tween //
+
+    var tween = this.tweens.add({
+        targets: ennemis,
+        x: 790,
+        y: 340,
+        paused: false,
+        yoyo: true,
+        repeat: -1
+    });
+
+
 
 // Animations //
 
 //Ennemis
 this.anims.create({
-    key: 'cube',
-    frames: [ {key: 'Lezard', frame: 0}],
-    frameRate : 5,
+    key: 'lezard',
+    frames: this.anims.generateFrameNumbers('mobs', {start: 0, end: 5}),
+    frameRate : 3,
     repeat : -1
 });
 
@@ -155,6 +170,10 @@ this.anims.create({
     update( ){
         
 
+    if (animMobs == true){
+        ennemis.anims.play("lezard", true);
+    }
+        
  // Barre de vie //
     if(invincible == true){
         timerInvincible = timerInvincible + 1
@@ -164,6 +183,13 @@ this.anims.create({
         }
     }
 
+
+// GameOver //
+    if (gameOver)
+    {
+        this.physics.pause();
+        return;
+    }
 
 //Controles manette// 
 this.input.gamepad.once('connected', function (pad){
@@ -454,33 +480,30 @@ function Sortie13() {
 }
 
 //Dégat par l'ennemis//
-/*function hitEnnemis (player, ennemis)
+function hitEnnemis ()
 {
     if (vieJoueur > 0 && invincible == false)
     {
         vieJoueur = vieJoueur -1;
-        
-    
     
     if (vieJoueur == 3){
-        barreDeVie.anims.play('enVie');
+        //barreDeVie.anims.play('enVie');
     
     }
     
     if (vieJoueur == 2){
-        barreDeVie.anims.play('blesser');
+        //barreDeVie.anims.play('blesser');
     }
     
     if (vieJoueur ==1){
-        barreDeVie.anims.play('critique');
+        //barreDeVie.anims.play('critique');
     }
     
     if (vieJoueur == 0){
-        barreDeVie.anims.play('mort');
+        //barreDeVie.anims.play('mort');
         player.setTint(0xff0000);
-        player.anims.play('turn');
         gameOver = true;
     }
     }
     invincible = true;
-}*/
+}
