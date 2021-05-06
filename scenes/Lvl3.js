@@ -7,11 +7,13 @@ class Lvl3 extends Phaser.Scene {
      }
 
     preload( ){
-        this.load.spritesheet("Lezard","assets/sprite.png" , {frameWidth: 32 , frameHeight: 32 });
+        this.load.spritesheet('mobs', 'assets/sprite/PNG/sprite_ennemi_1.png',{frameWidth:32, frameHeight: 32});
         this.load.spritesheet('Shina', 'assets/sprite_perso/PNG/sprite.png',{frameWidth:32, frameHeight: 32});
         this.load.tilemapTiledJSON('Labyrinthe', 'assets/map/Labyrinthe.JSON');
         this.load.image('Map', 'assets/map/asset_test.png');
-        
+        this.load.spritesheet('key', 'assets/inventaire/key.png',{frameWidth:33, frameHeight: 43}); // Objet
+        this.load.image('petiteKey', 'assets/inventaire/loot.png'); // Loot
+        this.load.spritesheet('projectile', 'assets/inventaire/projectile.png',{frameWidth:33, frameHeight: 43}); // projectile
     }
 
     create( ) {
@@ -22,12 +24,12 @@ class Lvl3 extends Phaser.Scene {
     
     map.createStaticLayer('sol_1', tileset)
     map.createStaticLayer('sol_2', tileset)
-    map.createStaticLayer('loot', tileset)
 
 
     
     // ennemis //
-     ennemis = this.physics.add.sprite(400, 800, 'Lezard');
+     ennemis = this.physics.add.sprite(840, 400, 'Lezard');
+     ennemis.body.setSize(20,18);
     
     // player //
     player = this.physics.add.sprite(x, y, 'Shina');
@@ -61,8 +63,21 @@ class Lvl3 extends Phaser.Scene {
     
     
 
-    //bg = this.add.image(0, 0, "mainMenu").setOrigin(0, 0);        
+    //bg = this.add.image(0, 0, "mainMenu").setOrigin(0, 0);  
+    
+        // Inventaire //
+    objet = this.physics.add.sprite(800, 285, 'key');
+    objet.setScrollFactor(0,0)
 
+    loot = this.physics.add.image(400, 240, 'petiteKey');
+
+    projectile = this.physics.add.sprite(765, 285, 'progectile');
+    projectile.setScrollFactor(0,0)
+
+
+    // Vie //
+    barreDeVie = this.physics.add.sprite(500, 280, 'barreDeVie');
+    barreDeVie.setScrollFactor(0,0)
 
 
 // Physiques player //
@@ -82,6 +97,95 @@ class Lvl3 extends Phaser.Scene {
     this.physics.add.collider(player, this.wallsLayer);
     this.physics.add.collider(player, this.sortieLayer, Sortie31);
     this.physics.add.collider(player, this.sortie2Layer, Sortie34);
+    this.physics.add.collider(player, ennemis, hitEnnemis);
+
+    this.physics.add.collider(ennemis, this.wallsLayer);
+    this.physics.add.collider(player, loot, collectKey); // collision joueur contre un loot + récolte le loot
+    this.physics.add.collider(loot, this.wallsLayer); // collision loot contre les murs / environnement
+    
+    
+
+    // Tween //
+
+    var tween = this.tweens.add({
+        targets: ennemis,
+        x: 990, //pose de base + 150
+        y: 400,
+        paused: false,
+        yoyo: true,
+        repeat: -1
+    });
+
+// Animations //
+
+
+//Objet
+
+this.anims.create({
+    key: 'projectileOn',
+    frames: [ {key : 'projectile', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'projectileOff',
+    frames: [ {key : 'projectile', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'cle',
+    frames: [ {key : 'key', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'pasDeKey',
+    frames: [ {key : 'key', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+//Vie
+this.anims.create({
+    key: 'vie_3/3',
+    frames: [ {key : 'barreDeVie', frame:0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_2/3',
+    frames: [ {key : 'barreDeVie', frame:1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_1/3',
+    frames: [ {key : 'barreDeVie', frame:2}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_0/3',
+    frames: [ {key : 'barreDeVie', frame:3}],
+    frameRate : 10,
+    repeat : -1
+});
+
+
+//Ennemis
+this.anims.create({
+    key: 'lezard',
+    frames: this.anims.generateFrameNumbers('mobs', {start: 0, end: 5}),
+    frameRate : 3,
+    repeat : -1
+});
 
 // Animations //
 this.anims.create({
@@ -145,6 +249,50 @@ this.anims.create({
     }
 
     update( ){
+
+    if (actuVie == true){
+        if (vieJoueur == 2){
+            barreDeVie.anims.play("vie_2/3", true);
+        }
+        else if (vieJoueur == 1){
+            barreDeVie.anims.play("vie_1/3", true);
+        }
+    }    
+
+    if (pasDeKey == false){
+        objet.anims.play("pasDeKey", true);
+    }
+    if (pasDeKey == true){
+        objet.anims.play("cle", true);
+    }
+
+    if (pasDeProjectile == false){
+        projectile.anims.play("projectileOff", true);
+    }
+    if (pasDeProjectile == true){
+        projectile.anims.play("projectileOn", true);
+    }
+
+    if (animMobs == true){
+        ennemis.anims.play("lezard", true);
+    }
+        
+ // Barre de vie //
+    if(invincible == true){
+        timerInvincible = timerInvincible + 1
+        if(timerInvincible >= 100){
+            invincible = false
+            timerInvincible = 0
+        }
+    }
+
+
+// GameOver //
+    if (gameOver)
+    {
+        this.physics.pause();
+        return;
+    }
 
 
 //Controles manette// 
@@ -413,6 +561,7 @@ else {
             y = 800;
             sceneTroisUn = false;
             resetCursors = true;
+            actuVie = true;
             this.scene.start("Lvl1");
             this.scene.pause("Lvl3");
             
@@ -422,6 +571,7 @@ else {
             y = 680;
             sceneTroisQuatre = false;
             resetCursors = true;
+            actuVie = true;
             this.scene.start("Lvl4");
             this.scene.pause("Lvl3");
             
@@ -435,4 +585,43 @@ function Sortie31() {
 function Sortie34() {
     sceneTroisQuatre = true;
     
+}
+
+//Dégat par l'ennemis//
+function hitEnnemis ()
+{
+    if (vieJoueur > 0 && invincible == false)
+    {
+        vieJoueur = vieJoueur -1;
+    
+    if (vieJoueur == 3){
+        barreDeVie.anims.play('vie_3/3');
+    
+    }
+    
+    if (vieJoueur == 2){
+        barreDeVie.anims.play('vie_2/3');
+    }
+    
+    if (vieJoueur ==1){
+        barreDeVie.anims.play('vie_1/3');
+    }
+    
+    if (vieJoueur == 0){
+        barreDeVie.anims.play('vie_0/3');
+        player.setTint(0xff0000);
+        gameOver = true;
+    }
+    }
+    invincible = true;
+}
+
+function collectMagie (){
+    projectileAuSol.disableBody(true,true);
+
+}
+
+function collectKey (){
+    loot.disableBody(true, true);
+    pasDeKey = true;
 }

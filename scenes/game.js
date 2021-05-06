@@ -6,7 +6,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: {y: 0},
-            debug:true
+            debug:false
         }
     },
     scene: [Menu, Lvl1, Lvl2, Lvl3, Lvl4, Inventary],
@@ -54,6 +54,8 @@ var bLeft = false;
 var bUp = true;
 var bDown = false;
 
+var actuVie = false; // permet d'actualiser la vie sur les  scènes
+
 //player//
 var player;
 var speed = 300;
@@ -67,9 +69,31 @@ var timerInvincible = 0;
 
 //ennemis//
 var ennemis;
+var ennemi;
 var animMobs = true;
 var vieEnnemis = 3;
 
+// Objet //
+var objet;
+var loot;
+var pasDeKey = false;
+
+// Porte //
+var porte;
+var porte1;
+var porte2 = false;
+
+// Projectile //
+var projectile;
+var projectileAuSol;
+var pasDeProjectile = false;
+
+// Pièce //
+var piece;
+var piece1;
+var piece2 = false;
+
+// GameOver //
 var gameOver = false;
 
 

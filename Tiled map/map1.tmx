@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="26" infinite="0" nextlayerid="24" nextobjectid="1">
  <editorsettings>
-  <export target="assets/map/Foret.json" format="json"/>
+  <export target="../assets/map/Foret.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" name="asset test" tilewidth="32" tileheight="26" tilecount="1080" columns="40">
-  <image source="assets/map/asset_test.png" width="1280" height="720"/>
+  <image source="../assets/map/asset_test.png" width="1280" height="720"/>
   <tile id="6">
    <objectgroup draworder="index" id="2">
     <object id="1" x="0" y="13.1522">
@@ -218,7 +218,7 @@
   </tile>
  </tileset>
  <tileset firstgid="1081" name="asset test" tilewidth="32" tileheight="26" tilecount="1080" columns="40">
-  <image source="assets/asset test.png" width="1280" height="720"/>
+  <image source="../assets/map/asset_test.png" width="1280" height="720"/>
   <tile id="0">
    <properties>
     <property name="collide" type="bool" value="false"/>

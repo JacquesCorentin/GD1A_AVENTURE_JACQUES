@@ -7,10 +7,15 @@ class Lvl4 extends Phaser.Scene {
      }
 
     preload( ){
-        this.load.spritesheet("Lezard","assets/sprite.png" , {frameWidth: 32 , frameHeight: 32 });
-        this.load.spritesheet('Shina', 'assets/sprite_perso/PNG/sprite.png',{frameWidth:32, frameHeight: 32});
+        this.load.spritesheet('mob', 'assets/sprite/PNG/sprite_ennemi_2.png',{frameWidth:32, frameHeight: 32});
+        this.load.spritesheet('Shina', 'assets/sprite/PNG/sprite.png',{frameWidth:32, frameHeight: 32});
         this.load.tilemapTiledJSON('Lac', 'assets/map/Lac.JSON');
         this.load.image('Map', 'assets/map/asset_test.png');
+        this.load.spritesheet('key', 'assets/inventaire/key.png',{frameWidth:33, frameHeight: 43}); // Objet
+        this.load.image('petiteKey', 'assets/inventaire/loot.png'); // Loot
+        this.load.image('porte', 'assets/environnement/PNG/porte.png'); // Porte
+        this.load.image('magie', 'assets/environnement/PNG/magie.png'); // Sort magique sur le sol (projectile)
+        this.load.spritesheet('projectile', 'assets/inventaire/projectile.png',{frameWidth:33, frameHeight: 43}); // projectile
         
     }
 
@@ -22,13 +27,13 @@ class Lvl4 extends Phaser.Scene {
     
     map.createStaticLayer('sol_1', tileset)
     map.createStaticLayer('sol_2', tileset)
-    map.createStaticLayer('loot', tileset)
     map.createStaticLayer('barriere_1', tileset)
     
 
     
     // ennemis //
-    ennemis = this.physics.add.sprite(400, 800, 'Lezard');
+    ennemi = this.physics.add.sprite(600, 477, 'mob');
+    ennemi.body.setSize(20,18);
     
     // player //
     player = this.physics.add.sprite(x, y, 'Shina');
@@ -38,8 +43,9 @@ class Lvl4 extends Phaser.Scene {
     //environnements//
     
     map.createStaticLayer('barriere_2', tileset)
-    map.createStaticLayer('arbres_1', tileset)
     map.createStaticLayer('arbres_2', tileset)
+    map.createStaticLayer('arbres_1', tileset)
+    
     map.createStaticLayer('arbres_3', tileset)
     map.createStaticLayer('maison', tileset)
 
@@ -55,9 +61,28 @@ class Lvl4 extends Phaser.Scene {
     
     
 
-    //bg = this.add.image(0, 0, "mainMenu").setOrigin(0, 0);        
+    //bg = this.add.image(0, 0, "mainMenu").setOrigin(0, 0);   
+    
+    // Inventaire //
+    objet = this.physics.add.sprite(800, 285, 'key');
+    objet.setScrollFactor(0,0)
+
+    loot = this.physics.add.image(400, 240, 'petiteKey');
+
+    porte = this.physics.add.staticGroup();
+    porte1 = porte.create(816,535, 'porte');
+    
+    projectile = this.physics.add.sprite(765, 285, 'progectile');
+    projectile.setScrollFactor(0,0)
+
+    projectileAuSol = this.physics.add.image(816, 600, 'magie');
 
 
+   
+
+    // Vie //
+    barreDeVie = this.physics.add.sprite(500, 280, 'barreDeVie');
+    barreDeVie.setScrollFactor(0,0)
 
 // Physiques player //
     
@@ -76,8 +101,100 @@ class Lvl4 extends Phaser.Scene {
     this.physics.add.collider(player, this.wallsLayer);
     this.physics.add.collider(player, this.sortie2Layer, Sortie43);
     this.physics.add.collider(player, this.sortieLayer, Sortie42);
+    this.physics.add.collider(player, ennemi, hitEnnemis);
+    this.physics.add.collider(player, porte1, ouverture); // collision  joueur contre porte avec la clé
+
+    this.physics.add.collider(ennemi, this.wallsLayer);
+    this.physics.add.collider(player, loot, collectKey); // collision joueur contre un loot + récolte le loot
+    this.physics.add.collider(loot, this.wallsLayer); // collision loot contre les murs / environnement
+
+    this.physics.add.collider(player, projectileAuSol, collectMagie); // collision joueur contre le projectile encore au sol
+
+    
+
+    // Tween //
+
+    var tween = this.tweens.add({
+        targets: ennemi,
+        x: 757, //pose de base + 150
+        y: 477,
+        paused: false,
+        yoyo: true,
+        repeat: -1
+    });
 
 // Animations //
+
+
+//Objet
+
+this.anims.create({
+    key: 'projectileOn',
+    frames: [ {key : 'projectile', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'projectileOff',
+    frames: [ {key : 'projectile', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'cle',
+    frames: [ {key : 'key', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'pasDeKey',
+    frames: [ {key : 'key', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+//Vie
+this.anims.create({
+    key: 'vie_3/3',
+    frames: [ {key : 'barreDeVie', frame:0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_2/3',
+    frames: [ {key : 'barreDeVie', frame:1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_1/3',
+    frames: [ {key : 'barreDeVie', frame:2}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_0/3',
+    frames: [ {key : 'barreDeVie', frame:3}],
+    frameRate : 10,
+    repeat : -1
+});
+
+
+//Ennemis
+this.anims.create({
+    key: 'lezard_eau',
+    frames: this.anims.generateFrameNumbers('mob', {start: 0, end: 5}),
+    frameRate : 3,
+    repeat : -1
+});
+
+//personnage
 this.anims.create({
     key: 'turnL',
     frames: [ {key: 'Shina', frame: 7}],
@@ -139,6 +256,54 @@ this.anims.create({
     }
 
     update( ){
+
+    if (porte2 == true){
+        porte1.disableBody(true,true);
+    }    
+
+    if (actuVie == true){
+        if (vieJoueur == 2){
+            barreDeVie.anims.play("vie_2/3", true);
+        }
+        else if (vieJoueur == 1){
+            barreDeVie.anims.play("vie_1/3", true);
+        }
+    }    
+
+    if (pasDeKey == false){
+        objet.anims.play("pasDeKey", true);
+    }
+    if (pasDeKey == true){
+        objet.anims.play("cle", true);
+    }
+
+    if (pasDeProjectile == false){
+        projectile.anims.play("projectileOff", true);
+    }
+    if (pasDeProjectile == true){
+        projectile.anims.play("projectileOn", true);
+    }
+
+    if (animMobs == true){
+        ennemi.anims.play("lezard_eau", true);
+    }
+        
+ // Barre de vie //
+    if(invincible == true){
+        timerInvincible = timerInvincible + 1
+        if(timerInvincible >= 100){
+            invincible = false
+            timerInvincible = 0
+        }
+    }
+
+
+// GameOver //
+    if (gameOver)
+    {
+        this.physics.pause();
+        return;
+    }
 
 
 //Controles manette// 
@@ -407,6 +572,7 @@ else {
             y = 680;
             sceneQuatreTrois = false;
             resetCursors = true;
+            actuVie = true;
             this.scene.start("Lvl3");
             this.scene.pause("Lvl4");
             
@@ -416,6 +582,7 @@ else {
             y = 800;
             sceneQuatreDeux = false;
             resetCursors = true;
+            actuVie = true;
             this.scene.start("Lvl2");
             this.scene.pause("Lvl4");
             
@@ -429,4 +596,49 @@ function Sortie43() {
 function Sortie42() {
     sceneQuatreDeux = true;
     
+}
+
+//Dégat par l'ennemis//
+function hitEnnemis ()
+{
+    if (vieJoueur > 0 && invincible == false)
+    {
+        vieJoueur = vieJoueur -1;
+    
+    if (vieJoueur == 3){
+        barreDeVie.anims.play('vie_3/3');
+    
+    }
+    
+    if (vieJoueur == 2){
+        barreDeVie.anims.play('vie_2/3');
+    }
+    
+    if (vieJoueur ==1){
+        barreDeVie.anims.play('vie_1/3');
+    }
+    
+    if (vieJoueur == 0){
+        barreDeVie.anims.play('vie_0/3');
+        player.setTint(0xff0000);
+        gameOver = true;
+    }
+    }
+    invincible = true;
+}
+
+function collectKey (){
+    loot.disableBody(true, true);
+    pasDeKey = true;
+}
+
+function collectMagie (){
+    projectileAuSol.disableBody(true,true);
+    pasDeProjectile = true;
+}
+
+function ouverture (){
+    if (pasDeKey == true){
+        porte2 = true;
+    }
 }

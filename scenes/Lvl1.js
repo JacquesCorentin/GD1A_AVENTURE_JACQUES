@@ -8,37 +8,38 @@ class Lvl1 extends Phaser.Scene {
 
     preload( ){
         
-        this.load.spritesheet('Shina', 'assets/sprite/PNG/sprite.png',{frameWidth:32, frameHeight: 32});
-        this.load.tilemapTiledJSON('Foret', 'assets/map/Foret.JSON');
-        this.load.image('Map', 'assets/map/asset_test.png'); 
-        this.load.spritesheet('mobs', 'assets/sprite/PNG/sprite_ennemi_1.png',{frameWidth:32, frameHeight: 32});   
-        
+        this.load.spritesheet('Shina', 'assets/sprite/PNG/sprite.png',{frameWidth:32, frameHeight: 32}); // sprite perso
+        this.load.tilemapTiledJSON('Foret', 'assets/map/Foret.JSON'); // map en format JSON
+        this.load.image('Map', 'assets/map/asset_test.png');  // assets utilisé pour la map dans tiled
+        this.load.spritesheet('key', 'assets/inventaire/key.png',{frameWidth:33, frameHeight: 43}); // Objet
+        this.load.spritesheet('mobs', 'assets/sprite/PNG/sprite_ennemi_1.png',{frameWidth:32, frameHeight: 32}); // sprite du monstre
+        this.load.spritesheet('barreDeVie', 'assets/interface/PNG/vie.png',{frameWidth:111,frameHeight:29});  // sprite de la barre de vie
+        this.load.image('petiteKey', 'assets/inventaire/loot.png'); // Loot
+        this.load.spritesheet('projectile', 'assets/inventaire/projectile.png',{frameWidth:33, frameHeight: 43}); // projectile
+        this.load.spritesheet('interfacePiece', 'assets/inventaire/sprite_piece.png',{frameWidth:40, frameHeight: 33}); // compteur de pièce
     }
 
     create( ) {
-// map //
+    // map //  
     
-    const map = this.make.tilemap({ key: 'Foret' })
-    const tileset = map.addTilesetImage('asset test','Map')
+    const map = this.make.tilemap({ key: 'Foret' }) // on charge la map foret 
+    const tileset = map.addTilesetImage('asset test','Map') // on charge les assets de la map utilisé dans Tilde
     
-    map.createStaticLayer('Sol', tileset)
+    map.createStaticLayer('Sol', tileset) // on crée les assets grâce au JSON
     map.createStaticLayer('Sol_2', tileset)
     map.createStaticLayer('Sol_3', tileset)
     map.createStaticLayer('loot', tileset)
     
-
     
     // ennemis //
-    ennemis = this.physics.add.sprite(640, 340, 'mobs');
-    ennemis.body.setSize(20,18);
+    ennemis = this.physics.add.sprite(640, 340, 'mobs'); // on fait spawn l'ennemis avec une physique
+    ennemis.body.setSize(20,18); // on définis une hitbox précise à l'ennemis   
     
     // player //
     player = this.physics.add.sprite(x, y, 'Shina');
     player.body.setSize(20,18);
-
-  
-
-
+        
+    
     //arbres//
     map.createStaticLayer('deco', tileset)
     map.createStaticLayer('deco1', tileset)
@@ -56,10 +57,25 @@ class Lvl1 extends Phaser.Scene {
     this.sortieLayer.setCollisionByExclusion(-1, true);
     this.sortie2Layer.setCollisionByExclusion(-1, true);
     
-
-    //bg = this.add.image(0, 0, "mainMenu").setOrigin(0, 0);        
+    
+    //bg = this.add.image(0, 0, "mainMenu").setOrigin(0, 0);
 
     
+    // Inventaire //
+    objet = this.physics.add.sprite(800, 285, 'key');
+    objet.setScrollFactor(0,0)
+
+    loot = this.physics.add.image(400, 240, 'petiteKey');
+
+    projectile = this.physics.add.sprite(765, 285, 'progectile');
+    projectile.setScrollFactor(0,0)
+
+    piece = this.physics.add.sprite(725, 287, 'interfacePiece');
+    piece.setScrollFactor(0,0)
+
+    // Vie //
+    barreDeVie = this.physics.add.sprite(500, 280, 'barreDeVie');
+    barreDeVie.setScrollFactor(0,0)
 
 // Physiques player //
     
@@ -75,12 +91,14 @@ class Lvl1 extends Phaser.Scene {
     buttonI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I); 
 
 // collider //
-    this.physics.add.collider(player, this.wallsLayer);
-    this.physics.add.collider(player, this.sortieLayer, Sortie12);
-    this.physics.add.collider(player, this.sortie2Layer, Sortie13);
-    this.physics.add.collider(player, ennemis, hitEnnemis);
+    this.physics.add.collider(player, this.wallsLayer); //collision jouer contre les murs / environnement
+    this.physics.add.collider(player, this.sortieLayer, Sortie12); //collision joueur contre une des sorties
+    this.physics.add.collider(player, this.sortie2Layer, Sortie13); //  ""                            ""           
+    this.physics.add.collider(player, ennemis, hitEnnemis); // collision joueur contre ennemis + application des dégats
 
-    this.physics.add.collider(ennemis, this.wallsLayer);
+    this.physics.add.collider(ennemis, this.wallsLayer); // collision ennemis contre les murs / environnement
+    this.physics.add.collider(player, loot, collectKey); // collision joueur contre un loot + récolte le loot
+    this.physics.add.collider(loot, this.wallsLayer); // collision loot contre les murs / environnement
     
 
 // Tween //
@@ -97,6 +115,94 @@ class Lvl1 extends Phaser.Scene {
 
 
 // Animations //
+
+//Objet
+
+this.anims.create({
+    key: 'piece_0',
+    frames: [ {key : 'interfacePiece', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_1',
+    frames: [ {key : 'interfacePiece', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_2',
+    frames: [ {key : 'interfacePiece', frame: 2}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_3',
+    frames: [ {key : 'interfacePiece', frame: 3}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_4',
+    frames: [ {key : 'projectile', frame: 4}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'projectileOff',
+    frames: [ {key : 'projectile', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'cle',
+    frames: [ {key : 'key', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'pasDeKey',
+    frames: [ {key : 'key', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+//Vie
+this.anims.create({
+    key: 'vie_3/3',
+    frames: [ {key : 'barreDeVie', frame:0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_2/3',
+    frames: [ {key : 'barreDeVie', frame:1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_1/3',
+    frames: [ {key : 'barreDeVie', frame:2}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'vie_0/3',
+    frames: [ {key : 'barreDeVie', frame:3}],
+    frameRate : 10,
+    repeat : -1
+});
+
 
 //Ennemis
 this.anims.create({
@@ -168,7 +274,31 @@ this.anims.create({
     }
 
     update( ){
-        
+
+    if (actuVie == true){   // on actualise la vie sur la scène
+        if (vieJoueur == 2){
+            barreDeVie.anims.play("vie_2/3", true);
+        }
+        else if (vieJoueur == 1){
+            barreDeVie.anims.play("vie_1/3", true);
+        }
+    }    
+    
+    
+    
+    if (pasDeKey == false){  // on check si la clé a été recoltée et on joue l'animation si c'est le cas
+        objet.anims.play("pasDeKey", true);
+    }
+    if (pasDeKey == true){
+        objet.anims.play("cle", true);
+    }
+
+    if (pasDeProjectile == false){
+        projectile.anims.play("projectileOff", true);
+    }
+    if (pasDeProjectile == true){
+        projectile.anims.play("projectileOn", true);
+    }
 
     if (animMobs == true){
         ennemis.anims.play("lezard", true);
@@ -177,7 +307,7 @@ this.anims.create({
  // Barre de vie //
     if(invincible == true){
         timerInvincible = timerInvincible + 1
-        if(timerInvincible >= 50){
+        if(timerInvincible >= 100){
             invincible = false
             timerInvincible = 0
         }
@@ -187,6 +317,7 @@ this.anims.create({
 // GameOver //
     if (gameOver)
     {
+
         this.physics.pause();
         return;
     }
@@ -457,6 +588,7 @@ else {
             y = 150;
             sceneUnDeux = false;
             resetCursors = true;
+            actuVie = true;
             this.scene.start("Lvl2");
             this.scene.pause("Lvl1");
             
@@ -466,6 +598,7 @@ else {
             y = 10;
             sceneUnTrois = false;
             resetCursors = true;
+            actuVie = true;
             this.scene.start("Lvl3");
             this.scene.pause("Lvl1");
         }
@@ -487,23 +620,33 @@ function hitEnnemis ()
         vieJoueur = vieJoueur -1;
     
     if (vieJoueur == 3){
-        //barreDeVie.anims.play('enVie');
+        barreDeVie.anims.play('vie_3/3');
     
     }
     
     if (vieJoueur == 2){
-        //barreDeVie.anims.play('blesser');
+        barreDeVie.anims.play('vie_2/3');
     }
     
     if (vieJoueur ==1){
-        //barreDeVie.anims.play('critique');
+        barreDeVie.anims.play('vie_1/3');
     }
     
     if (vieJoueur == 0){
-        //barreDeVie.anims.play('mort');
+        barreDeVie.anims.play('vie_0/3');
         player.setTint(0xff0000);
         gameOver = true;
     }
     }
     invincible = true;
+}
+
+function collectKey (){
+    loot.disableBody(true, true);
+    pasDeKey = true;
+}
+
+function collectMagie (){
+    projectileAuSol.disableBody(true,true);
+
 }
