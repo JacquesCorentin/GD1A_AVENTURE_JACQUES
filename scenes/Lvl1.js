@@ -15,8 +15,11 @@ class Lvl1 extends Phaser.Scene {
         this.load.spritesheet('mobs', 'assets/sprite/PNG/sprite_ennemi_1.png',{frameWidth:32, frameHeight: 32}); // sprite du monstre
         this.load.spritesheet('barreDeVie', 'assets/interface/PNG/vie.png',{frameWidth:111,frameHeight:29});  // sprite de la barre de vie
         this.load.image('petiteKey', 'assets/inventaire/loot.png'); // Loot
+        this.load.image('magie', 'assets/environnement/PNG/magie.png'); // Sort magique sur le sol (projectile)
         this.load.spritesheet('projectile', 'assets/inventaire/projectile.png',{frameWidth:33, frameHeight: 43}); // projectile
-        this.load.spritesheet('interfacePiece', 'assets/inventaire/sprite_piece.png',{frameWidth:40, frameHeight: 33}); // compteur de pièce
+        this.load.spritesheet('interfacePiece', 'assets/inventaire/sprite_piece.png',{frameWidth:40, frameHeight: 39}); // compteur de pièce
+        this.load.image('piece', 'assets/inventaire/piece.png'); // Piece
+        this.load.image('sort', 'assets/sprite/PNG/sprite-personnage-magie.png')
     }
 
     create( ) {
@@ -58,6 +61,7 @@ class Lvl1 extends Phaser.Scene {
     this.sortie2Layer.setCollisionByExclusion(-1, true);
     
     
+    
     //bg = this.add.image(0, 0, "mainMenu").setOrigin(0, 0);
 
     
@@ -65,13 +69,17 @@ class Lvl1 extends Phaser.Scene {
     objet = this.physics.add.sprite(800, 285, 'key');
     objet.setScrollFactor(0,0)
 
-    loot = this.physics.add.image(400, 240, 'petiteKey');
+    loot = this.physics.add.image(208, 66, 'petiteKey');
 
     projectile = this.physics.add.sprite(765, 285, 'progectile');
     projectile.setScrollFactor(0,0)
 
     piece = this.physics.add.sprite(725, 287, 'interfacePiece');
     piece.setScrollFactor(0,0)
+
+    petitePiece = this.physics.add.image (400, 240, 'piece');
+
+
 
     // Vie //
     barreDeVie = this.physics.add.sprite(500, 280, 'barreDeVie');
@@ -88,7 +96,8 @@ class Lvl1 extends Phaser.Scene {
 
 // bouton //
     cursors = this.input.keyboard.createCursorKeys();
-    buttonI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I); 
+    //buttonI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+    buttonA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A); 
 
 // collider //
     this.physics.add.collider(player, this.wallsLayer); //collision jouer contre les murs / environnement
@@ -99,6 +108,8 @@ class Lvl1 extends Phaser.Scene {
     this.physics.add.collider(ennemis, this.wallsLayer); // collision ennemis contre les murs / environnement
     this.physics.add.collider(player, loot, collectKey); // collision joueur contre un loot + récolte le loot
     this.physics.add.collider(loot, this.wallsLayer); // collision loot contre les murs / environnement
+
+    this.physics.add.collider(player, petitePiece, collectPiece); // collision joueur contre piece + recolte piece & compteur
     
 
 // Tween //
@@ -115,6 +126,15 @@ class Lvl1 extends Phaser.Scene {
 
 
 // Animations //
+
+//Sprite sort
+
+this.anims.create({
+    key: 'sprite_sort',
+    frames: [ {key : 'sort', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
 
 //Objet
 
@@ -148,7 +168,7 @@ this.anims.create({
 
 this.anims.create({
     key: 'piece_4',
-    frames: [ {key : 'projectile', frame: 4}],
+    frames: [ {key : 'interfacePiece', frame: 4}],
     frameRate : 10,
     repeat : -1
 });
@@ -283,14 +303,63 @@ this.anims.create({
             barreDeVie.anims.play("vie_1/3", true);
         }
     }    
+
+    if (actuPiece == true){   // on actualise les pièces sur la scène
+        if (piece1 == 1){
+            piece.anims.play("piece_1", true);
+        }
+        else if (piece1 == 2){
+            piece.anims.play("piece_2", true);
+        }
+
+        else if (piece1 == 3){
+            piece.anims.play("piece_3", true);
+        }
+        else if (piece1 == 4){
+            piece.anims.play("piece_4", true);
+        }
+        actuPiece = false;
+    }
     
-    
+
+    if(toucheEnnemis == true && buttonA.isDown && pasDeProjectile == true){ // permet de jouer l'animation de sort une fois tous les critère remplis
+        player.anims.play("sprite_sort");
+        ennemis.disableBody(true,true);
+        player.setVelocityX(0);
+        player.setVelocityY(0);
+    }
     
     if (pasDeKey == false){  // on check si la clé a été recoltée et on joue l'animation si c'est le cas
         objet.anims.play("pasDeKey", true);
     }
     if (pasDeKey == true){
         objet.anims.play("cle", true);
+    }
+
+
+    if (piece1 == 0){
+        piece.anims.play("piece_0",true);
+    }
+    if (compteur == true){
+        piece1 = piece1 + 1
+        if (piece1 > 4){
+            piece1 = 4
+        }
+        if ( piece1 == 1){
+            piece.anims.play('piece_1');
+        }
+        if ( piece1 == 2){
+            piece.anims.play('piece_2');
+        }
+
+        if ( piece1 == 3){
+            piece.anims.play('piece_3');
+        }
+    
+        if ( piece1 == 4){
+            piece.anims.play('piece_4');
+        }
+        compteur = false;
     }
 
     if (pasDeProjectile == false){
@@ -300,10 +369,12 @@ this.anims.create({
         projectile.anims.play("projectileOn", true);
     }
 
+    
     if (animMobs == true){
         ennemis.anims.play("lezard", true);
-    }
-        
+    } 
+
+
  // Barre de vie //
     if(invincible == true){
         timerInvincible = timerInvincible + 1
@@ -463,7 +534,7 @@ if (paddleConnected==true){
 //Controle Clavier 
 else {
     //Inventaire 
-    if (buttonI.isDown && lvlun==true)
+   /* if (buttonI.isDown && lvlun==true)
     {
         resetCursors=true;
         lvlun=false;
@@ -473,7 +544,7 @@ else {
     if (buttonI.isUp)
     {
         lvlun = true ;
-    }
+    }*/
 // Controle Clavier
       // Bas
       if (cursors.down.isDown){
@@ -529,7 +600,7 @@ else {
 
         }
     //Haut
-        else if (cursors.up.isDown){    
+        else if (cursors.up.isDown){   
         player.setVelocityY(-speed);
         player.setVelocityX(0);
         player.anims.play('up', true);
@@ -546,7 +617,7 @@ else {
         }
 
   //Haut
-  else if (cursors.up.isDown){    
+  else if (cursors.up.isDown){  
     player.setVelocityY(-speed);
     player.setVelocityX(0);
     player.anims.play('up', true);
@@ -589,6 +660,7 @@ else {
             sceneUnDeux = false;
             resetCursors = true;
             actuVie = true;
+            actuPiece = true;
             this.scene.start("Lvl2");
             this.scene.pause("Lvl1");
             
@@ -599,6 +671,7 @@ else {
             sceneUnTrois = false;
             resetCursors = true;
             actuVie = true;
+            actuPiece = true;
             this.scene.start("Lvl3");
             this.scene.pause("Lvl1");
         }
@@ -615,10 +688,11 @@ function Sortie13() {
 //Dégat par l'ennemis//
 function hitEnnemis ()
 {
+    toucheEnnemis = true ;
     if (vieJoueur > 0 && invincible == false)
     {
         vieJoueur = vieJoueur -1;
-    
+        
     if (vieJoueur == 3){
         barreDeVie.anims.play('vie_3/3');
     
@@ -649,4 +723,9 @@ function collectKey (){
 function collectMagie (){
     projectileAuSol.disableBody(true,true);
 
+}
+
+function collectPiece(){
+    petitePiece.disableBody(true,true);
+    compteur = true;
 }

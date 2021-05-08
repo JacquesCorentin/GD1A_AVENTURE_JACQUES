@@ -15,6 +15,10 @@ class Lvl2 extends Phaser.Scene {
         this.load.spritesheet('key', 'assets/inventaire/key.png',{frameWidth:33, frameHeight: 43}); // Objet
         this.load.image('petiteKey', 'assets/inventaire/loot.png'); // Loot
         this.load.spritesheet('projectile', 'assets/inventaire/projectile.png',{frameWidth:33, frameHeight: 43}); // projectile
+        this.load.spritesheet('interfacePiece', 'assets/inventaire/sprite_piece.png',{frameWidth:40, frameHeight: 33}); // compteur de pièce
+        this.load.image('piece', 'assets/inventaire/piece.png'); // Piece
+        this.load.image('sort', 'assets/sprite/PNG/sprite-personnage-magie.png')
+
     }
 
     create( ) {
@@ -69,10 +73,15 @@ class Lvl2 extends Phaser.Scene {
     objet = this.physics.add.sprite(800, 285, 'key');
     objet.setScrollFactor(0,0)
 
-    loot = this.physics.add.image(400, 240, 'petiteKey');
+    //loot = this.physics.add.image(400, 240, 'petiteKey');
 
     projectile = this.physics.add.sprite(765, 285, 'progectile');
     projectile.setScrollFactor(0,0)
+
+    piece = this.physics.add.sprite(725, 287, 'interfacePiece');
+    piece.setScrollFactor(0,0)
+
+    petitePiece = this.physics.add.image (890, 375, 'piece');
 
     // Vie //
     barreDeVie = this.physics.add.sprite(500, 280, 'barreDeVie');
@@ -89,7 +98,8 @@ class Lvl2 extends Phaser.Scene {
 
 // bouton //
     cursors = this.input.keyboard.createCursorKeys();
-    buttonI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I); 
+    //buttonI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I); 
+    buttonA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A); 
 
 // collider //
     this.physics.add.collider(player, this.wallsLayer);
@@ -98,8 +108,7 @@ class Lvl2 extends Phaser.Scene {
     this.physics.add.collider(player, ennemis, hitEnnemis);
 
     this.physics.add.collider(ennemis, this.wallsLayer);
-    this.physics.add.collider(player, loot, collectKey); // collision joueur contre un loot + récolte le loot
-    this.physics.add.collider(loot, this.wallsLayer); // collision loot contre les murs / environnement
+    this.physics.add.collider(player, petitePiece, collectPiece); // collision joueur contre piece + recolte piece & compteur
     
     
 
@@ -116,8 +125,44 @@ class Lvl2 extends Phaser.Scene {
 
 // Animations //
 
+// Sprite Sort
+this.anims.create({
+    key: 'sprite_sort',
+    frames: [ {key : 'sort', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
 
 //Objet
+
+this.anims.create({
+    key: 'piece_0',
+    frames: [ {key : 'interfacePiece', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_1',
+    frames: [ {key : 'interfacePiece', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_2',
+    frames: [ {key : 'interfacePiece', frame: 2}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_3',
+    frames: [ {key : 'interfacePiece', frame: 3}],
+    frameRate : 10,
+    repeat : -1
+});
 
 this.anims.create({
     key: 'projectileOn',
@@ -256,6 +301,31 @@ this.anims.create({
             barreDeVie.anims.play("vie_1/3", true);
         }
     }    
+
+
+    if (actuPiece == true){   // on actualise les pièces sur la scène
+        if (piece1 == 1){
+            piece.anims.play("piece_1", true);
+        }
+        else if (piece1 == 2){
+            piece.anims.play("piece_2", true);
+        }
+
+        else if (piece1 == 3){
+            piece.anims.play("piece_3", true);
+        }
+        else if (piece1 == 4){
+            piece.anims.play("piece_4", true);
+        }
+        actuPiece = false;
+    }
+
+    if(toucheEnnemis == true && buttonA.isDown && pasDeProjectile == true){ // permet de jouer l'animation de sort une fois tous les critère remplis
+        player.anims.play("sprite_sort");
+        ennemis.disableBody(true,true);
+        player.setVelocityX(0);
+        player.setVelocityY(0);
+    }
     
     if (pasDeKey == false){
         objet.anims.play("pasDeKey", true);
@@ -263,6 +333,32 @@ this.anims.create({
     if (pasDeKey == true){
         objet.anims.play("cle", true);
     }
+
+    if (piece1 == 0){
+        piece.anims.play("piece_0",true);
+    }
+    if (compteur == true){
+        piece1 = piece1 + 1
+        if (piece1 > 4){
+            piece1 = 4
+        }
+        if ( piece1 == 1){
+            piece.anims.play('piece_1');
+        }
+        if ( piece1 == 2){
+            piece.anims.play('piece_2');
+        }
+
+        if ( piece1 == 3){
+            piece.anims.play('piece_3');
+        }
+    
+        if ( piece1 == 4){
+            piece.anims.play('piece_4');
+        }
+        compteur = false;
+    }
+
 
     if (pasDeProjectile == false){
         projectile.anims.play("projectileOff", true);
@@ -435,7 +531,7 @@ if (paddleConnected==true){
 //Controle Clavier 
 else {
     //Inventaire 
-    if (buttonI.isDown && lvlun==true)
+   /* if (buttonI.isDown && lvlun==true)
     {
         lvlun=false;
         this.scene.start("Inventary");
@@ -444,7 +540,7 @@ else {
     if (buttonI.isUp)
     {
         lvlun = true ;
-    }
+    }*/
 // Controle Clavier
       // Bas
       if (cursors.down.isDown){
@@ -560,6 +656,7 @@ else {
             sceneDeuxUn = false;
             resetCursors = true;
             actuVie = true;
+            actuPiece = true;
             this.scene.start("Lvl1");
             this.scene.pause("Lvl2");
             
@@ -570,6 +667,7 @@ else {
             sceneDeuxQuatre = false;
             resetCursors = true;
             actuVie = true;
+            actuPiece = true;
             this.scene.start("Lvl4");
             this.scene.pause("Lvl2");
             
@@ -587,6 +685,7 @@ function Sortie24() {
 //Dégat par l'ennemis//
 function hitEnnemis ()
 {
+    toucheEnnemis = true ;
     if (vieJoueur > 0 && invincible == false)
     {
         vieJoueur = vieJoueur -1;
@@ -613,12 +712,16 @@ function hitEnnemis ()
     invincible = true;
 }
 
-function collectKey (){
+/*function collectKey (){
     loot.disableBody(true, true);
     pasDeKey = true;
-}
+}*/
 
 function collectMagie (){
     projectileAuSol.disableBody(true,true);
+}
 
+function collectPiece(){
+    petitePiece.disableBody(true,true);
+    compteur = true;
 }

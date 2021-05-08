@@ -9,7 +9,7 @@ var config = {
             debug:false
         }
     },
-    scene: [Menu, Lvl1, Lvl2, Lvl3, Lvl4, Inventary],
+    scene: [Menu, Controle, Lvl1, Lvl2, Lvl3, Lvl4],
     input:{gamepad:true}
 };
 
@@ -22,8 +22,7 @@ var yAxis;
 var paddleConnected = false;
 var paddle;
 var lvlun = true;
-var inventaire = true;
-var buttonI;
+var controle = true;
 var bg;
 var resetCursors = false;
 
@@ -58,7 +57,7 @@ var actuVie = false; // permet d'actualiser la vie sur les  scènes
 
 //player//
 var player;
-var speed = 300;
+var speed = 150;
 var vieJoueur = 3;
 var barreDeVie;
 var hit = true;
@@ -87,11 +86,23 @@ var porte2 = false;
 var projectile;
 var projectileAuSol;
 var pasDeProjectile = false;
+var directionX;
+var directionY;
+
+var toucheEnnemis = true;
 
 // Pièce //
 var piece;
-var piece1;
-var piece2 = false;
+var piece1 = 0;
+var compteur = false;
+var petitePiece;
+var actuPiece = false;
+
+// Bouttons //
+var buttonP;
+var buttonO;
+var buttonA;
+
 
 // GameOver //
 var gameOver = false;

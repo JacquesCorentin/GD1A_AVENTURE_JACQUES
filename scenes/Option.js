@@ -1,6 +1,6 @@
-class Menu extends Phaser.Scene {
+class Controle extends Phaser.Scene {
     constructor( ) {
-        super("Menu");
+        super("Controle");
     }
 
     
@@ -8,20 +8,20 @@ class Menu extends Phaser.Scene {
     init ( ){};
 
     preload(){
-        this.load.image('bg', 'assets/menu/menu.png',);
+        this.load.image('controle', 'assets/menu/option.png',);
 
     }
 
     create( ) {
 
-    bg = this.add.image(0, 0, "bg").setOrigin(-0, -0);
+    bg = this.add.image(0, 0, "controle").setOrigin(0, 0);
 
 
 
 // bouton //
     cursors = this.input.keyboard.createCursorKeys();
-    buttonO = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O); 
-    buttonP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P); 
+    buttonP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+    buttonO = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);  
 
 
 
@@ -56,35 +56,15 @@ else {
     if (buttonO.isDown && controle==true)
     {
         controle=false;
-        this.scene.start("Controle");
-        this.scene.pause("Menu");
+        this.scene.start("Menu");
+        this.scene.pause("Controle");
     }
-    else (buttonO.isUp)
+    if (buttonO.isUp)
     {
         controle = true ;
     }
 
-    if (buttonP.isDown && lvlun==true)
-        {
-         lvlun=false;
-        this.scene.start("Lvl1");
-        this.scene.pause("Menu");
-            }
-     if (buttonP.isUp)
-    {
-        lvlun = true ;
-    }
-    
-    
-    }
-
 
     }
-
-
-
-
-
-
-
+}
 }

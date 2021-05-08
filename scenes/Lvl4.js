@@ -16,6 +16,9 @@ class Lvl4 extends Phaser.Scene {
         this.load.image('porte', 'assets/environnement/PNG/porte.png'); // Porte
         this.load.image('magie', 'assets/environnement/PNG/magie.png'); // Sort magique sur le sol (projectile)
         this.load.spritesheet('projectile', 'assets/inventaire/projectile.png',{frameWidth:33, frameHeight: 43}); // projectile
+        this.load.spritesheet('interfacePiece', 'assets/inventaire/sprite_piece.png',{frameWidth:40, frameHeight: 33}); // compteur de pièce
+        this.load.image('piece', 'assets/inventaire/piece.png'); // Piece
+        this.load.image('sort', 'assets/sprite/PNG/sprite-personnage-magie.png')
         
     }
 
@@ -67,7 +70,7 @@ class Lvl4 extends Phaser.Scene {
     objet = this.physics.add.sprite(800, 285, 'key');
     objet.setScrollFactor(0,0)
 
-    loot = this.physics.add.image(400, 240, 'petiteKey');
+    //loot = this.physics.add.image(400, 240, 'petiteKey');
 
     porte = this.physics.add.staticGroup();
     porte1 = porte.create(816,535, 'porte');
@@ -77,7 +80,10 @@ class Lvl4 extends Phaser.Scene {
 
     projectileAuSol = this.physics.add.image(816, 600, 'magie');
 
+    piece = this.physics.add.sprite(725, 287, 'interfacePiece');
+    piece.setScrollFactor(0,0)
 
+    petitePiece = this.physics.add.image (710, 555, 'piece');
    
 
     // Vie //
@@ -95,7 +101,8 @@ class Lvl4 extends Phaser.Scene {
 
 // bouton //
     cursors = this.input.keyboard.createCursorKeys();
-    buttonI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I); 
+    //buttonI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I); 
+    buttonA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A); 
 
 // collider //
     this.physics.add.collider(player, this.wallsLayer);
@@ -105,8 +112,7 @@ class Lvl4 extends Phaser.Scene {
     this.physics.add.collider(player, porte1, ouverture); // collision  joueur contre porte avec la clé
 
     this.physics.add.collider(ennemi, this.wallsLayer);
-    this.physics.add.collider(player, loot, collectKey); // collision joueur contre un loot + récolte le loot
-    this.physics.add.collider(loot, this.wallsLayer); // collision loot contre les murs / environnement
+    this.physics.add.collider(player, petitePiece, collectPiece); // collision joueur contre piece + recolte piece & compteur
 
     this.physics.add.collider(player, projectileAuSol, collectMagie); // collision joueur contre le projectile encore au sol
 
@@ -125,8 +131,44 @@ class Lvl4 extends Phaser.Scene {
 
 // Animations //
 
+//Sprite sort
+
+this.anims.create({
+    key: 'sprite_sort',
+    frames: [ {key : 'sort', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
 
 //Objet
+
+this.anims.create({
+    key: 'piece_0',
+    frames: [ {key : 'interfacePiece', frame: 0}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_1',
+    frames: [ {key : 'interfacePiece', frame: 1}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_2',
+    frames: [ {key : 'interfacePiece', frame: 2}],
+    frameRate : 10,
+    repeat : -1
+});
+
+this.anims.create({
+    key: 'piece_3',
+    frames: [ {key : 'interfacePiece', frame: 3}],
+    frameRate : 10,
+    repeat : -1
+});
 
 this.anims.create({
     key: 'projectileOn',
@@ -270,12 +312,63 @@ this.anims.create({
         }
     }    
 
+
+    if (actuPiece == true){   // on actualise les pièces sur la scène
+        if (piece1 == 1){
+            piece.anims.play("piece_1", true);
+        }
+        else if (piece1 == 2){
+            piece.anims.play("piece_2", true);
+        }
+
+        else if (piece1 == 3){
+            piece.anims.play("piece_3", true);
+        }
+        else if (piece1 == 4){
+            piece.anims.play("piece_4", true);
+        }
+        actuPiece = false;
+    }
+
+    if(toucheEnnemis == true && buttonA.isDown && pasDeProjectile == true){ // permet de jouer l'animation de sort une fois tous les critère remplis
+        player.anims.play("sprite_sort");
+        ennemi.disableBody(true,true);
+        player.setVelocityX(0);
+        player.setVelocityY(0);
+    }
+
     if (pasDeKey == false){
         objet.anims.play("pasDeKey", true);
     }
     if (pasDeKey == true){
         objet.anims.play("cle", true);
     }
+
+    if (piece1 == 0){
+        piece.anims.play("piece_0",true);
+    }
+    if (compteur == true){
+        piece1 = piece1 + 1
+        if (piece1 > 4){
+            piece1 = 4
+        }
+        if ( piece1 == 1){
+            piece.anims.play('piece_1');
+        }
+        if ( piece1 == 2){
+            piece.anims.play('piece_2');
+        }
+
+        if ( piece1 == 3){
+            piece.anims.play('piece_3');
+        }
+    
+        if ( piece1 == 4){
+            piece.anims.play('piece_4');
+        }
+        compteur = false;
+    }
+
 
     if (pasDeProjectile == false){
         projectile.anims.play("projectileOff", true);
@@ -448,7 +541,7 @@ if (paddleConnected==true){
 //Controle Clavier 
 else {
     //Inventaire 
-    if (buttonI.isDown && lvlun==true)
+    /*if (buttonI.isDown && lvlun==true)
     {
         lvlun=false;
         this.scene.start("Inventary");
@@ -457,7 +550,7 @@ else {
     if (buttonI.isUp)
     {
         lvlun = true ;
-    }
+    }*/
 // Controle Clavier
       // Bas
       if (cursors.down.isDown){
@@ -573,6 +666,7 @@ else {
             sceneQuatreTrois = false;
             resetCursors = true;
             actuVie = true;
+            actuPiece = true;
             this.scene.start("Lvl3");
             this.scene.pause("Lvl4");
             
@@ -583,6 +677,7 @@ else {
             sceneQuatreDeux = false;
             resetCursors = true;
             actuVie = true;
+            actuPiece = true;
             this.scene.start("Lvl2");
             this.scene.pause("Lvl4");
             
@@ -601,6 +696,7 @@ function Sortie42() {
 //Dégat par l'ennemis//
 function hitEnnemis ()
 {
+    toucheEnnemis = true ;
     if (vieJoueur > 0 && invincible == false)
     {
         vieJoueur = vieJoueur -1;
@@ -627,14 +723,19 @@ function hitEnnemis ()
     invincible = true;
 }
 
-function collectKey (){
+/*function collectKey (){
     loot.disableBody(true, true);
     pasDeKey = true;
-}
+}*/
 
 function collectMagie (){
     projectileAuSol.disableBody(true,true);
     pasDeProjectile = true;
+}
+
+function collectPiece(){
+    petitePiece.disableBody(true,true);
+    compteur = true;
 }
 
 function ouverture (){
